@@ -128,9 +128,9 @@ def shutdown_event_loop():
     __loop = None
 
     async def __shutdown():
-        for task in asyncio.all_tasks():
+        for task in asyncio.all_tasks(loop):
             task.cancel()
-        asyncio.get_event_loop().stop()
+        loop.stop()
 
     if loop and thread:
         asyncio.run_coroutine_threadsafe(__shutdown(), loop)
