@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import sublime
+import traceback
 
 from functools import wraps
 from threading import Thread
@@ -46,6 +47,7 @@ def asyncio_completions(func: Callable):
                 completions = []
         except Exception:
             completion_list.set_completions([])
+            traceback.print_exc()
             raise
         else:
             completion_list.set_completions(completions, flags)
@@ -74,9 +76,16 @@ def asyncio_event(func: Callable):
     ```
     """
 
+    async def run(func: Callable, *args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except Exception:
+            traceback.print_exc()
+            raise
+
     @wraps(func)
     def wrapper(*args, **kwargs):
-        run_coro(func(*args, **kwargs))
+        run_coro(run(func, *args, **kwargs))
 
     return wrapper
 
