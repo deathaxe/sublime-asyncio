@@ -1,26 +1,26 @@
 from __future__ import annotations
+import asyncio
 import simdjson
 import sublime_plugin
 
-from .vendor import aio_sublime
+from . import sublime_aio
 
 
 def plugin_loaded():
-    aio_sublime.setup_event_loop()
+    sublime_aio.setup_event_loop()
 
 
 def plugin_unloaded():
-    aio_sublime.shutdown_event_loop()
+    sublime_aio.shutdown_event_loop()
 
 
-class CompletionListener(sublime_plugin.ViewEventListener):
-    parser = simdjson.Parser()
+class CompletionListener1(sublime_plugin.ViewEventListener):
 
-    @aio_sublime.asyncio_completions
+    @sublime_aio.completion
     async def on_query_completions(self, prefix, locations):
-        doc = self.parser.parse(data)
-        return (i["label"] for i in doc["items"])
+        await asyncio.sleep(1.0)
+        return ["foo", "bar"]
 
-    @aio_sublime.asyncio_event
+    @sublime_aio.coro
     async def on_modified(self):
         print(f"{self.view!r} got modified on io loop!")
